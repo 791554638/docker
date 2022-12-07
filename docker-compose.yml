@@ -1,0 +1,99 @@
+# yaml 配置
+version: '3'
+services:
+  nginx:
+    container_name: "docker_nginx"
+    image: "nginx:latest"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - "php"
+    networks:
+      - china
+    volumes:
+      - "./app/nginx/conf:/etc/nginx/conf.d/"
+      - "./site:/var/www/html/"
+      - "./app/nginx/log:/var/log/nginx/"
+    external_links:
+      - php
+  php:
+    container_name: "docker_php"
+    image: "php:7.3-fpm"
+    ports:
+      - "9000:9000"
+      - "9002:9002"
+      - "9003:9003"
+    stdin_open: true
+    tty: true
+    external_links:
+      - mysql
+      - redis
+      - elasticsearch
+    networks:
+      - china
+    volumes:
+      - "./php/conf:/usr/local/etc/php"
+      - "./site:/var/www/html"
+    environment:
+      - TZ=Asia/Shanghai
+  mysql:
+    container_name: "china_mysql"
+    image: "mysql:latest"
+    ports:
+      - "3306:3306"
+    networks:
+      - china
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD= "root"
+      - DEFAULT-AUTHENTICATION-PLUGIN=mysql_native_password
+    volumes:
+      - "./app/mysql/conf:/etc/mysql/conf.d"
+      - "./app/mysql/data:/var/lib/mysql"
+      - "./app/mysql/logs:/data/mysql/logs"
+
+  redis:
+    container_name: "docker_redis"
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    networks:
+      - china
+      #    volumes:
+      - "./app/redis/data:/data"
+  elasticsearch:
+    container_name: "docker_elasticsearch"
+    image: "elasticsearch:7.7.0"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    volumes:
+      - "./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+      - "./elasticsearch/data:/usr/share/elasticsearch/data"
+      - "./elasticsearch/plugins:/usr/share/elasticsearch/plugins"
+    depends_on:
+      - php
+      - kibana
+      - canal
+    networks:
+      - china
+    privileged: true    #环境变量
+  kibana:
+    container_name: "china_kibana"
+    image: "kibana:7.7.0"
+    ports:
+      - "5601:5601"
+    networks:
+      - china
+    external_links:
+      - elasticsearch
+networks:
+  china:
+
+
