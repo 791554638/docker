@@ -1,7 +1,7 @@
 # Docker-PHP
 
 ### 前言
-
+    新手上路感谢各路大神多提提意见。
     本项目用于学些docker搭建PHP开发环境，目前环境使用 nginx+mysql+redis+PHP搭建而，成也就是lnmp环境，目前基本满足常规PHP项目开发使用，在此申明此项目使用于对docker-compose、dockerfile 有一定基础的同学，新人建议先阅读官方入门指南。
 
 ### 前瞻
